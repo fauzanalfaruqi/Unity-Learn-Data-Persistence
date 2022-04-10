@@ -10,7 +10,7 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    [SerializeField] Text ScoreText, bestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -24,8 +24,9 @@ public class MainManager : MonoBehaviour
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
+        var dm = DataManager.Instance;
         
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+        int[] pointCountArray = new [] {1,1,2,3,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -36,6 +37,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        bestScoreText.text = $"Best Score\n{dm.username} : {dm.userBestScore}";
     }
 
     private void Update()
@@ -66,6 +69,19 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+
+        CheckForNewScore(m_Points);
+    }
+
+    void CheckForNewScore(int score)
+    {
+        var dm = DataManager.Instance;
+
+        if (m_Points > dm.userBestScore)
+        {
+            dm.UpdateBestScore(score);
+            bestScoreText.text = $"Best Score\n{dm.username} : {m_Points}";
+        }
     }
 
     public void GameOver()
